@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { signUp, isAuthenticated, loading } = useAuth();
+  const { signUp, isAuthenticated, loading, configError } = useAuth();
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -49,7 +49,7 @@ export default function SignupPage() {
       router.replace("/home");
     } catch (signupError) {
       console.error("Signup error:", signupError);
-      setError("Unable to create your account.");
+      setError(signupError?.message || "Unable to create your account.");
     } finally {
       setSubmitting(false);
     }
@@ -112,12 +112,13 @@ export default function SignupPage() {
             />
           </div>
 
+          {configError ? <p className="text-sm text-danger">{configError}</p> : null}
           {error ? <p className="text-sm text-danger">{error}</p> : null}
           {success ? <p className="text-sm text-success">{success}</p> : null}
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || !!configError}
             className="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {submitting ? "Creating account..." : "Create account"}

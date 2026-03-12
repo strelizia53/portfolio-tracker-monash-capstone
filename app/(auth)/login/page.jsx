@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { signIn, signInWithGoogle, isAuthenticated, loading } = useAuth();
+  const { signIn, signInWithGoogle, isAuthenticated, loading, configError } = useAuth();
   const [form, setForm] = useState({ email: "", password: "" });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -34,7 +34,7 @@ export default function LoginPage() {
       router.replace(redirectTarget);
     } catch (signInError) {
       console.error("Login error:", signInError);
-      setError("Unable to sign in with those credentials.");
+      setError(signInError?.message || "Unable to sign in with those credentials.");
     } finally {
       setSubmitting(false);
     }
@@ -48,7 +48,7 @@ export default function LoginPage() {
       router.replace(redirectTarget);
     } catch (googleError) {
       console.error("Google login error:", googleError);
-      setError("Google sign-in failed.");
+      setError(googleError?.message || "Google sign-in failed.");
     } finally {
       setSubmitting(false);
     }
@@ -117,11 +117,12 @@ export default function LoginPage() {
               />
             </div>
 
+            {configError ? <p className="text-sm text-danger">{configError}</p> : null}
             {error ? <p className="text-sm text-danger">{error}</p> : null}
 
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || !!configError}
               className="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               {submitting ? "Signing in..." : "Sign in"}
@@ -131,7 +132,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={handleGoogleSignIn}
-            disabled={submitting}
+            disabled={submitting || !!configError}
             className="mt-3 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 dark:border-slate-700 dark:text-slate-200"
           >
             Sign in with Google

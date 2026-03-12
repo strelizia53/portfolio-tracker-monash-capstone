@@ -10,7 +10,7 @@ import {
   signOut as firebaseSignOut,
 } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, firebaseClientConfigError } from "@/lib/firebase";
 
 const AuthContext = createContext({});
 
@@ -38,8 +38,19 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [configError] = useState(firebaseClientConfigError);
+
+  const ensureFirebaseClient = () => {
+    if (!auth || !db) {
+      throw new Error(
+        configError ||
+          "Firebase client configuration is unavailable. Check your NEXT_PUBLIC_FIREBASE_* variables."
+      );
+    }
+  };
 
   const ensureUserProfile = async (firebaseUser, userData = {}) => {
+    ensureFirebaseClient();
     const userRef = doc(db, "users", firebaseUser.uid);
     const userDoc = await getDoc(userRef);
 
@@ -53,6 +64,11 @@ export function AuthProvider({ children }) {
   };
 
   useEffect(() => {
+    if (!auth || !db) {
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
@@ -72,6 +88,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const signUp = async (email, password, userData) => {
+    ensureFirebaseClient();
     const result = await createUserWithEmailAndPassword(auth, email, password);
     const userProfile = buildUserProfile(result.user, userData);
     await setDoc(doc(db, "users", result.user.uid), userProfile);
@@ -80,6 +97,7 @@ export function AuthProvider({ children }) {
   };
 
   const signIn = async (email, password) => {
+    ensureFirebaseClient();
     const result = await signInWithEmailAndPassword(auth, email, password);
     const existingProfile = await ensureUserProfile(result.user);
     setProfile(existingProfile);
@@ -87,6 +105,7 @@ export function AuthProvider({ children }) {
   };
 
   const signInWithGoogle = async () => {
+    ensureFirebaseClient();
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
     const existingProfile = await ensureUserProfile(result.user);
@@ -95,6 +114,7 @@ export function AuthProvider({ children }) {
   };
 
   const signOutUser = async () => {
+    ensureFirebaseClient();
     await firebaseSignOut(auth);
     setUser(null);
     setProfile(null);
@@ -102,6 +122,7 @@ export function AuthProvider({ children }) {
 
   const updateUserProfile = async (data) => {
     if (!user) return;
+    ensureFirebaseClient();
     const updatedData = { ...data, updated_at: serverTimestamp() };
     await setDoc(doc(db, "users", user.uid), updatedData, { merge: true });
     setProfile((prev) => ({ ...prev, ...data }));
@@ -109,6 +130,7 @@ export function AuthProvider({ children }) {
 
   const getIdToken = async () => {
     if (!user) return null;
+    ensureFirebaseClient();
     return await user.getIdToken();
   };
 
@@ -116,6 +138,7 @@ export function AuthProvider({ children }) {
     user,
     profile,
     loading,
+    configError,
     isAuthenticated: !!user,
     signUp,
     signIn,
