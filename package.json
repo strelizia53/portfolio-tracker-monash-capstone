@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "qa": "node scripts/qa/run-all.mjs",
+    "qa:public": "node scripts/qa/public-smoke.mjs",
+    "qa:api": "node scripts/qa/api-smoke.mjs",
     "seed:demo-user": "node scripts/seed-demo-user.mjs",
     "seed:one": "node scripts/seed-demo-user.mjs one@test.com"
   },

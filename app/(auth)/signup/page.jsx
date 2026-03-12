@@ -56,7 +56,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12">
+    <div className="flex min-h-[calc(100vh-88px)] items-center justify-center px-4 py-12">
       <div className="w-full max-w-2xl rounded-[28px] border border-slate-200/80 bg-white/90 p-8 shadow-2xl shadow-slate-900/5 backdrop-blur dark:border-slate-700/70 dark:bg-slate-900/85 sm:p-10">
         <Link href="/" className="text-sm font-semibold uppercase tracking-[0.22em] text-primary">
           NexaFlow

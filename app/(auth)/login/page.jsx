@@ -55,7 +55,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12">
+    <div className="flex min-h-[calc(100vh-88px)] items-center justify-center px-4 py-12">
       <div className="grid w-full max-w-5xl overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/90 shadow-2xl shadow-slate-900/5 backdrop-blur dark:border-slate-700/70 dark:bg-slate-900/85 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
           <div>
